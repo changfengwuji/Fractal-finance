@@ -30,27 +30,57 @@ fractal_finance = "0.1.2"
 ### Basic Usage
 
 ```rust
-use fractal_finance::{
-    StatisticalFractalAnalyzer,
-    hurst_estimators::{estimate_hurst_by_method, EstimationMethod, HurstEstimationConfig},
-};
+use fractal_finance::{StatisticalFractalAnalyzer, EstimationMethod};
+use rand::prelude::*;
+use rand_distr::StandardNormal;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Create analyzer
     let mut analyzer = StatisticalFractalAnalyzer::new();
 
-    // Add your financial time series
-    let returns = vec![0.01, -0.02, 0.015, /* ... your data ... */];
-    analyzer.add_time_series("AAPL".to_string(), returns);
+    // Generate 500 realistic financial return data points
+    let returns = generate_financial_returns(500);
+    println!("Generated {} data points for analysis", returns.len());
+    analyzer.add_time_series("ASSET".to_string(), returns);
 
     // Perform comprehensive analysis
-    let results = analyzer.analyze_series("AAPL")?;
+    analyzer.analyze_all_series()?;
 
-    // Access results
-    println!("Hurst exponent (DFA): {:.3}", results.hurst_estimates.dfa.estimate);
-    println!("Multifractal degree: {:.3}", results.multifractal.degree_of_multifractality);
-
+    // Get results
+    let results = analyzer.get_analysis_results("ASSET")?;
+    for (method, estimate) in &results.hurst_estimates {
+        println!("{:?}: H = {:.3} ± {:.3}", method,
+            estimate.estimate, estimate.standard_error);
+    }
+    
     Ok(())
+}
+
+fn generate_financial_returns(n: usize) -> Vec<f64> {
+    let mut rng = thread_rng();
+    let mut returns = Vec::with_capacity(n);
+    
+    // Parameters for realistic financial returns
+    let base_volatility = 0.015f64; // 1.5% daily volatility
+    let mut volatility = base_volatility;
+    let mut previous_return = 0.0f64;
+    
+    for i in 0..n {
+        // Add volatility clustering (GARCH-like effect)
+        let volatility_shock = rng.gen_range(-0.005..0.005);
+        volatility = (base_volatility + 0.1 * previous_return.abs() + volatility_shock).max(0.005f64);
+        
+        // Generate return with some persistence (memory effect)
+        let white_noise: f64 = rng.sample(rand_distr::StandardNormal);
+        let persistence_factor = 0.15 * previous_return; // 15% persistence
+        let trend_component = 0.0001 * (i as f64 / 100.0).sin(); // Small trend component
+        
+        let return_val = trend_component + persistence_factor + volatility * white_noise;
+        
+        returns.push(return_val);
+        previous_return = return_val;
+    }
+    
+    returns
 }
 ```
 
