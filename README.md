@@ -88,20 +88,23 @@ fn generate_financial_returns(n: usize) -> Vec<f64> {
 
 ```rust
 use fractal_finance::{
-    multifractal::{mf_dfa_analysis, MultifractalConfig},
-    regime_detection::{detect_fractal_regimes, RegimeConfig},
+    multifractal::{perform_multifractal_analysis_with_config, MultifractalConfig},
+    regime_detection::{detect_fractal_regimes, RegimeDetectionConfig},
     bootstrap::{BootstrapConfiguration, BootstrapMethod},
 };
 
-fn advanced_analysis(data: &[f64]) -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Generate sample data
+    let data: Vec<f64> = (0..1000).map(|i| (i as f64 * 0.01).sin() * 0.02).collect();
+    
     // Multifractal analysis
     let mf_config = MultifractalConfig::default();
-    let mf_results = mf_dfa_analysis(data, &mf_config)?;
-
+    let mf_results = perform_multifractal_analysis_with_config(&data, &mf_config)?;
+    
     // Regime detection
-    let regime_config = RegimeConfig::default();
-    let regimes = detect_fractal_regimes(data, 2, &regime_config)?;
-
+    let regime_config = RegimeDetectionConfig::default();
+    let regimes = detect_fractal_regimes(&data, &regime_config)?;
+    
     // Bootstrap validation
     let bootstrap_config = BootstrapConfiguration {
         num_bootstrap_samples: 1000,
@@ -109,7 +112,12 @@ fn advanced_analysis(data: &[f64]) -> Result<(), Box<dyn std::error::Error>> {
         bootstrap_method: BootstrapMethod::Block,
         ..Default::default()
     };
-
+    
+    println!("Multifractal analysis completed!");
+    println!("Regime detection analyzed {} windows from {} data points", 
+        regimes.regime_sequence.len(), data.len());
+    println!("Found {} regime change points", regimes.change_points.len());
+    
     Ok(())
 }
 ```
