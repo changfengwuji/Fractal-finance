@@ -1,0 +1,102 @@
+[package]
+name = "fractal_finance"
+version = "0.1.2"
+edition = "2021"
+rust-version = "1.70"
+description = "Enterprise-grade fractal analysis for quantitative finance applications"
+license = "MIT OR Apache-2.0"
+authors = ["Financial Fractal Analysis Team"]
+repository = "https://github.com/your-actual-username/financial-fractal-analysis"
+documentation = "https://www.pyquantlib.com/docs/"
+homepage = "https://www.pyquantlib.com"
+keywords = ["finance", "fractal", "hurst", "multifractal", "quantitative"]
+categories = ["mathematics", "science", "algorithms"]
+readme = "README.md"
+
+[lib]
+name = "fractal_finance"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]
+# Core mathematical libraries
+rustfft = "6.0"
+nalgebra = "0.32"
+statrs = "0.16"
+num-complex = "0.4"
+argmin = "0.8"
+
+# Error handling and utilities
+thiserror = "1.0"
+fastrand = "2.0"
+lazy_static = "1.4"
+log = "0.4"
+
+# Cryptographically secure RNG for financial applications
+rand = "0.8"
+rand_chacha = "0.3"
+once_cell = "1.19"
+
+# LRU cache for efficient FFT plan caching
+lru = "0.12"
+
+# High-performance synchronization primitives for true LRU cache
+parking_lot = "0.12"
+
+# Financial arithmetic - CRITICAL for accurate money calculations
+rust_decimal = { version = "1.33", features = ["serde", "maths"] }
+rust_decimal_macros = "1.33"
+
+# Optional dependencies for advanced features
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1.0", features = ["full"] }
+plotters = { version = "0.3" }
+rayon = { version = "1.8" }
+
+[dev-dependencies]
+proptest = "1.0"
+approx = "0.5"
+assert_approx_eq = "1.1"
+criterion = { version = "0.5", features = ["html_reports"] }
+serde_json = "1.0"
+
+[features]
+default = []
+long-tests = []  # Enable long-running statistical validation tests
+
+# Optional features
+parallel = []  # Parallel processing optimizations
+simd = []     # SIMD vectorization optimizations
+async = []    # Async processing capabilities
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+# AGGRESSIVE COMPILER OPTIMIZATIONS FOR QUANTITATIVE FINANCE
+# These settings prioritize performance for billion-dollar operations
+[profile.release]
+opt-level = 3      # Maximum optimization for financial calculations
+lto = "fat"        # Full Link Time Optimization - critical for HFT
+codegen-units = 1  # Single codegen unit for maximum optimization
+panic = "unwind"   # Graceful error recovery in production
+debug = true       # Enable profiling in production for performance monitoring
+strip = false      # Keep symbols for production debugging
+overflow-checks = true  # Critical for financial calculations
+
+[profile.dev]
+opt-level = 1
+debug = true
+lto = false
+codegen-units = 16
+
+[profile.bench]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+debug = true
+
+[profile.test]
+opt-level = 2
+debug = true
+
