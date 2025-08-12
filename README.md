@@ -24,7 +24,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-fractal_finance = "0.1.2"
+fractal_finance = "0.1.4"
 ```
 
 ### Basic Usage
