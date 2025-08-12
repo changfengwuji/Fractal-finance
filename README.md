@@ -51,35 +51,35 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("{:?}: H = {:.3} ± {:.3}", method,
             estimate.estimate, estimate.standard_error);
     }
-    
+
     Ok(())
 }
 
 fn generate_financial_returns(n: usize) -> Vec<f64> {
     let mut rng = thread_rng();
     let mut returns = Vec::with_capacity(n);
-    
+
     // Parameters for realistic financial returns
     let base_volatility = 0.015f64; // 1.5% daily volatility
     let mut volatility = base_volatility;
     let mut previous_return = 0.0f64;
-    
+
     for i in 0..n {
         // Add volatility clustering (GARCH-like effect)
         let volatility_shock = rng.gen_range(-0.005..0.005);
         volatility = (base_volatility + 0.1 * previous_return.abs() + volatility_shock).max(0.005f64);
-        
+
         // Generate return with some persistence (memory effect)
         let white_noise: f64 = rng.sample(rand_distr::StandardNormal);
         let persistence_factor = 0.15 * previous_return; // 15% persistence
         let trend_component = 0.0001 * (i as f64 / 100.0).sin(); // Small trend component
-        
+
         let return_val = trend_component + persistence_factor + volatility * white_noise;
-        
+
         returns.push(return_val);
         previous_return = return_val;
     }
-    
+
     returns
 }
 ```
@@ -96,15 +96,15 @@ use fractal_finance::{
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Generate sample data
     let data: Vec<f64> = (0..1000).map(|i| (i as f64 * 0.01).sin() * 0.02).collect();
-    
+
     // Multifractal analysis
     let mf_config = MultifractalConfig::default();
     let mf_results = perform_multifractal_analysis_with_config(&data, &mf_config)?;
-    
+
     // Regime detection
     let regime_config = RegimeDetectionConfig::default();
     let regimes = detect_fractal_regimes(&data, &regime_config)?;
-    
+
     // Bootstrap validation
     let bootstrap_config = BootstrapConfiguration {
         num_bootstrap_samples: 1000,
@@ -112,12 +112,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         bootstrap_method: BootstrapMethod::Block,
         ..Default::default()
     };
-    
+
     println!("Multifractal analysis completed!");
     println!("Regime detection analyzed {} windows from {} data points", 
         regimes.regime_sequence.len(), data.len());
     println!("Found {} regime change points", regimes.change_points.len());
-    
+
     Ok(())
 }
 ```
@@ -172,7 +172,6 @@ Known test limitations:
 
 Comprehensive documentation is available:
 
-- [Live Documentation](https://www.pyquantlib.com/docs/) - Complete API documentation with examples
 - [API Documentation](https://docs.rs/fractal_finance) - Official Rust documentation
 - Module-level documentation in source code
 
